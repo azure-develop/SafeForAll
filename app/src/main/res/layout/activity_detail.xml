@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DetailActivity">
+
+    <TextView
+        android:id="@+id/tv_emc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="Emergency Contacts"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_email1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="1st Email Address"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintTop_toBottomOf="@id/tv_emc" />
+
+    <EditText
+        android:id="@+id/et_email1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="someone@something.com"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:inputType="textEmailAddress"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintRight_toRightOf="@id/tv_emc"
+        app:layout_constraintTop_toBottomOf="@id/tv_email1" />
+
+    <TextView
+        android:id="@+id/tv_email2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="2nd Email Address"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintTop_toBottomOf="@id/et_email1" />
+
+    <EditText
+        android:id="@+id/et_email2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="someone@something.com"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:inputType="textEmailAddress"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintRight_toRightOf="@id/tv_emc"
+        app:layout_constraintTop_toBottomOf="@id/tv_email2" />
+
+    <TextView
+        android:id="@+id/tv_phone1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="1st Phone Number"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintTop_toBottomOf="@id/et_email2" />
+
+    <EditText
+        android:id="@+id/et_phone1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="09xxxxxxxxx"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:inputType="textEmailAddress"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintRight_toRightOf="@id/tv_emc"
+        app:layout_constraintTop_toBottomOf="@id/tv_phone1" />
+
+    <TextView
+        android:id="@+id/tv_phone2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="2nd Phone Number"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintTop_toBottomOf="@id/et_phone1" />
+
+    <EditText
+        android:id="@+id/et_phone2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="09xxxxxxxxx"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:inputType="textEmailAddress"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintRight_toRightOf="@id/tv_emc"
+        app:layout_constraintTop_toBottomOf="@id/tv_phone2" />
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:textSize="40sp"
+        android:text="save"
+        android:backgroundTint="#3FB3F8"
+        app:layout_constraintLeft_toLeftOf="@id/tv_emc"
+        app:layout_constraintRight_toRightOf="@id/tv_emc"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

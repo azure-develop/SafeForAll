@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "277598701968",
+    "firebase_url": "https://safeforall-31859-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "safeforall-31859",
+    "storage_bucket": "safeforall-31859.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277598701968:android:fd61849ce58e987e454b15",
+        "android_client_info": {
+          "package_name": "ph.dlsu.s11.caih.machineproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "277598701968-u5ofnrk8eh8gih39o4jcbsjotm05v9t9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoTZDHnCy6w3TgmKaMY3gQ22g6SP-rDo4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "277598701968-u5ofnrk8eh8gih39o4jcbsjotm05v9t9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

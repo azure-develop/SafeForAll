@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".DetailActivity">
 
+    <ImageButton
+        android:id="@+id/ib_back2"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="20dp"
+        android:padding="0dp"
+        android:src="@drawable/back"
+        android:scaleType="centerCrop"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/tv_emc"
         android:layout_width="wrap_content"
@@ -71,7 +83,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="1st Phone Number"
+        android:text="1st Mobile Phone Number"
         android:textColor="@color/black"
         android:textSize="24sp"
         app:layout_constraintLeft_toLeftOf="@id/tv_emc"
@@ -95,7 +107,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="2nd Phone Number"
+        android:text="2nd Mobile Phone Number"
         android:textColor="@color/black"
         android:textSize="24sp"
         app:layout_constraintLeft_toLeftOf="@id/tv_emc"

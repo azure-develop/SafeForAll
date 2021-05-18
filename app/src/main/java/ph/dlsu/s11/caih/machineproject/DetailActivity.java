@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,7 +30,8 @@ public class DetailActivity extends AppCompatActivity {
     private SharedPreferences sp;
     private EditText et_email1, et_email2, et_phone1, et_phone2;
     private Button btn_save;
-    private String user;
+    private ImageButton ib_back2;
+    private String user, location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,18 @@ public class DetailActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         user = extras.getString("user");
+        location = extras.getString("location");
+
+        if(location.equalsIgnoreCase("main")){
+            ib_back2.setVisibility(View.GONE);
+        }else if(location.equalsIgnoreCase("maps")){
+            ib_back2.setVisibility(View.VISIBLE);
+        }
+
+        ib_back2.setOnClickListener(v -> {
+            finish();
+            startActivity(new Intent(DetailActivity.this, MapsActivity.class));
+        });
 
         btn_save.setOnClickListener(v -> {
             Map<String, Object> details = new HashMap<>();
@@ -89,5 +104,6 @@ public class DetailActivity extends AppCompatActivity {
         et_phone1 = findViewById(R.id.et_phone1);
         et_phone2 = findViewById(R.id.et_phone2);
         btn_save = findViewById(R.id.btn_save);
+        ib_back2 = findViewById(R.id.ib_back2);
     }
 }

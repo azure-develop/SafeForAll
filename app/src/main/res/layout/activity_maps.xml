@@ -1,9 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsActivity" />
+    tools:context=".MapsActivity" >
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        map:layout_constraintTop_toTopOf="parent"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintBottom_toTopOf="@id/ll_buttons"/>
+
+    <LinearLayout
+        android:id="@+id/ll_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:weightSum="5"
+        android:background="#F3F5E1"
+        map:layout_constraintBottom_toTopOf="@id/ll_text" >
+
+        <ImageButton
+            android:id="@+id/ib_edit"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:src="@drawable/edit"
+            android:scaleType="fitCenter"
+            android:backgroundTint="@android:color/transparent" />
+
+        <ImageButton
+            android:id="@+id/ib_sound"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_margin="0dp"
+            android:padding="5dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:src="@drawable/sound"
+            android:scaleType="fitCenter"
+            android:backgroundTint="@android:color/transparent" />
+
+        <ImageButton
+            android:id="@+id/ib_sms"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:padding="5dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:src="@drawable/sms"
+            android:scaleType="fitCenter"
+            android:backgroundTint="@android:color/transparent" />
+
+        <ImageButton
+            android:id="@+id/ib_email"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:padding="5dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:src="@drawable/envelope"
+            android:scaleType="fitCenter"
+            android:backgroundTint="@android:color/transparent" />
+
+        <ImageButton
+            android:id="@+id/ib_logout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="5dp"
+            android:src="@drawable/logout"
+            android:scaleType="fitCenter"
+            android:backgroundTint="@android:color/transparent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_text"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:orientation="horizontal"
+        android:weightSum="5"
+        android:background="#F3F5E1"
+        map:layout_constraintBottom_toBottomOf="parent" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:fontFamily="@font/roboto_slab"
+            android:text="Edit Contact"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:fontFamily="@font/roboto_slab"
+            android:text="Loud Sound"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:fontFamily="@font/roboto_slab"
+            android:text="Send SMS"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:fontFamily="@font/roboto_slab"
+            android:text="Send Email"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:fontFamily="@font/roboto_slab"
+            android:text="Logout"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

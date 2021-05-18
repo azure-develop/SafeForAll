@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         if(currentUser != null){        //firebase keeps user logged in app until uninstall or sign out function
             Toast.makeText(MainActivity.this, "Currently logged in as " + currentUser.getEmail() + "but no needed info", Toast.LENGTH_LONG).show();
             Log.d(TAG, currentUser.getEmail());
+            pb_load.setVisibility(View.VISIBLE);
             //function query and check if said user has details or not, if no details then redirect to detail activity
             loggedIn(currentUser.getEmail());
         }
@@ -120,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "createUserWithEmail:success " + user.getEmail());
                     Intent i = new Intent(MainActivity.this, DetailActivity.class);
                     i.putExtra("user", email);
+                    i.putExtra("location", "main");
                     finish();
                     startActivity(i);
                 } else {
@@ -178,11 +180,14 @@ public class MainActivity extends AppCompatActivity {
                                 editor.putLong("phone1", Long.parseLong(c));
                                 editor.putLong("phone2", Long.parseLong(d));
                                 editor.apply();
+                                pb_load.setVisibility(View.GONE);
                                 startActivity(new Intent(MainActivity.this, MapsActivity.class));
                             } else {
                                 Log.d(TAG, "No such document " + user);
                                 Intent i = new Intent(MainActivity.this, DetailActivity.class);
                                 i.putExtra("user", user);
+                                i.putExtra("location", "main");
+                                pb_load.setVisibility(View.GONE);
                                 finish();
                                 startActivity(i);
                             }

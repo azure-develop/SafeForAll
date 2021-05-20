@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         // Check if user is signed in
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){        //firebase keeps user logged in app until uninstall or sign out function
-            Toast.makeText(MainActivity.this, "Currently logged in as " + currentUser.getEmail() + "but no needed info", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Currently logged in as " + currentUser.getEmail(), Toast.LENGTH_LONG).show();
             Log.d(TAG, currentUser.getEmail());
             pb_load.setVisibility(View.VISIBLE);
             //function query and check if said user has details or not, if no details then redirect to detail activity
@@ -147,10 +147,12 @@ public class MainActivity extends AppCompatActivity {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success ");
                     loggedIn(email);
-                } else {
+                } else if(task.getException().getMessage().equalsIgnoreCase("An internal error has occurred. [ Connection reset ]")){
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure ", task.getException());
-                    Toast.makeText(MainActivity.this, "Login failed, try again", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Connection reset, try again", Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(MainActivity.this, "Email or Password wrong, try again", Toast.LENGTH_LONG).show();
                 }
                 // ...
             }
@@ -185,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(new Intent(MainActivity.this, MapsActivity.class));
                             } else {
                                 Log.d(TAG, "No such document " + user);
+                                Toast.makeText(MainActivity.this, "No needed info", Toast.LENGTH_LONG).show();
                                 Intent i = new Intent(MainActivity.this, DetailActivity.class);
                                 i.putExtra("user", user);
                                 i.putExtra("location", "main");
@@ -192,8 +195,11 @@ public class MainActivity extends AppCompatActivity {
                                 finish();
                                 startActivity(i);
                             }
+                        } else if(task.getException().getMessage().equalsIgnoreCase("Failed to get document because the client is offline.")){
+                            Toast.makeText(MainActivity.this, "You are offline, try again later", Toast.LENGTH_LONG).show();
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
+                            Toast.makeText(MainActivity.this, "Login process failed, try again", Toast.LENGTH_LONG).show();
                         }
                     }
                 });

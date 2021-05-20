@@ -30,9 +30,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
-    //TODO sms function/button ... maybe make tracker() || locationManager a Service to see if it'll be faster
-    //TODO improve email function to accept String[] ... some other small tweaks
+    //TODO sms function/button ...
     private GoogleMap mMap;
     private SharedPreferences sp;
     private ImageButton ib_logout, ib_sound, ib_sms, ib_edit, ib_email;
@@ -43,7 +47,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String user, email1, email2, phone1, phone2, locat;
     private LocationListener locationListener;
 
-    private static final int PERMISSION_REQUEST_LOCATION_CODE = 1;
+    private TrackerUtility trackerUtility;
+    private static final int PERMISSION_REQUEST_FINE_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +65,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStart () {
         super.onStart();
 
+//        trackerUtility = new TrackerUtility(getApplicationContext(), MapsActivity.this);
+//        trackerUtility.track();
         tracker();
 
         sp = getSharedPreferences("safeforall", Context.MODE_PRIVATE);
@@ -77,7 +84,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         ib_logout.setOnClickListener(v -> {
-            logout();
+            AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
+            alertDialog.setTitle("Logging Out");
+            alertDialog.setMessage("Are you sure you want to log out?");
+
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    alertDialog.dismiss();
+                }
+            });
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    alertDialog.dismiss();
+                    logout();
+                }
+            });
+            alertDialog.show();
         });
 
         final AudioManager mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -98,18 +124,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         ib_email.setOnClickListener(v -> {
-            String email = email1;
+            String[] email = {email1, email2};
             String sub= "Safety concern to Emergency Contact";
             String msg = "I feel unsafe, my last location during this email was " + locat +
                     "\n\n\n Sent from application SafeForAll by user " + user;
             JavaMailAPI mail = new JavaMailAPI(this, email, sub, msg);
-            mail.execute();
-
-            String emaill = email2;
-            String subb = "Safety concern to Emergency Contact";
-            String msgg = "I feel unsafe, my last location during this email was " + locat +
-                    "\n\n\n Sent from application SafeForAll by user " + user;
-            mail = new JavaMailAPI(this, emaill, subb, msgg);
             mail.execute();
 
             Toast.makeText(getApplicationContext(), "Email sent successfully", Toast.LENGTH_LONG).show();
@@ -132,19 +151,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+//        startService(new Intent(this, TrackerService.class));
+//        mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f));
     }
 
-    private void tracker(){
+    public void tracker(){
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if(shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                showAlert();
+                != PackageManager.PERMISSION_GRANTED) {
+            if(shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                showAlert(Manifest.permission.ACCESS_FINE_LOCATION);
             }else {
-                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_LOCATION_CODE);
+                Log.d(TAG, "tracker: request perm");
+                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSION_REQUEST_FINE_CODE);
             }
         }else{
             if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
@@ -154,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
                         locat = String.format("Latitude: %f Longitude: %f", latitude,longitude);
-                        Log.d(TAG, String.format("%f + %f", latitude,longitude));
+                        Log.d(TAG, String.format("%f + %f", latitude, longitude));
                         LatLng latLng = new LatLng(latitude, longitude);
                         mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f));
@@ -175,53 +197,80 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //all requestPermissions come back to this function
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult: ");
         switch(requestCode){
-            case PERMISSION_REQUEST_LOCATION_CODE:{
+            case PERMISSION_REQUEST_FINE_CODE:{
                 for(int i = 0, len = permissions.length; i < len; i++){
                     String permission = permissions[i];
                     if(grantResults[i] == PackageManager.PERMISSION_DENIED){
+                        Log.d(TAG, "onRequestPermissionsResult: denied then...");
                         if(shouldShowRequestPermissionRationale(permission)){
-                            showAlert();
+                            showAlert(permission);
                         }else {
-                            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_LOCATION_CODE);
-                            tracker();
+                            showDialog("Since you have denied permission twice or checked never ask me again. " +
+                                    "You now need to go to phone Settings to allow this app the permissions needed to work " +
+                                    "or simply reinstall the app and remember to accept permissions. After clicking 'Understood'" +
+                                    " below, the app will close.", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            // proceed with logic by disabling the related features or quit the app.
+                                            finishAffinity();
+                                    }
+                                }
+                            });
                         }
+                    }else if(grantResults[i] == PackageManager.PERMISSION_GRANTED){
+                        Log.d(TAG, "onRequestPermissionsResult: granted now");
+                        tracker();
                     }
-                }
+                }   //finish loop checking for deny
+                Log.d(TAG, "onRequestPermissionsResult: done looping permission");
             }
         }
     }
 
-    private void showAlert(){
+    private void showDialog(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(this)
+                .setTitle("Warning")
+                .setMessage(message)
+//                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Understood", okListener)
+                .create()
+                .show();
+    }
+
+    private void showAlert(String perm){
         AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
         alertDialog.setTitle("Permission Request");
-        alertDialog.setMessage("Location Permissions are needed for application to work, if user doesn't allow permissions the app will close");
-
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DON'T ALLOW",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        alertDialog.dismiss();
-                        finishAffinity();
-                    }
-                });
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        alertDialog.dismiss();
-                        ActivityCompat.requestPermissions(MapsActivity.this,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_LOCATION_CODE);
-                        tracker();
-                    }
-                });
-
-        alertDialog.show();
+        Log.d(TAG, "showAlert: "+ perm);
+        if(perm.equalsIgnoreCase(Manifest.permission.ACCESS_FINE_LOCATION) || perm.equalsIgnoreCase(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            alertDialog.setMessage("Location Permissions are needed for application to work, if user doesn't allow permissions the app will close");
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DON'T ALLOW",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            alertDialog.dismiss();
+                            finishAffinity();
+                        }
+                    });
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            alertDialog.dismiss();
+                            ActivityCompat.requestPermissions(MapsActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_FINE_CODE);
+                        }
+                    });
+            alertDialog.show();
+        }
     }
 
     private void logout(){

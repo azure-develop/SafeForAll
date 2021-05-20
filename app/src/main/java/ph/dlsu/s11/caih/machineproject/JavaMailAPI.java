@@ -2,8 +2,10 @@ package ph.dlsu.s11.caih.machineproject;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.security.Security;
+import java.util.Arrays;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -18,13 +20,14 @@ public class JavaMailAPI extends AsyncTask<Void, Void, Void> {
 
     private Context context;
     private Session session;
-    private String email, subject, message;
+    private String subject, message;
+    private String[] email;
 
     static {
         Security.addProvider(new JSSEProvider());
     }
 
-    public JavaMailAPI(Context context, String email, String subject, String message){
+    public JavaMailAPI(Context context, String[] email, String subject, String message){
         this.context=context;
         this.email=email;
         this.subject=subject;
@@ -49,9 +52,12 @@ public class JavaMailAPI extends AsyncTask<Void, Void, Void> {
         MimeMessage mimeMessage = new MimeMessage(session);
         try{
             mimeMessage.setFrom(new InternetAddress("caihennry@gmail.com"));
-            mimeMessage.setRecipients(Message.RecipientType.TO, String.valueOf(new InternetAddress(email)));
+            for (int i=0; i<email.length; i++) {
+                mimeMessage.addRecipients(Message.RecipientType.TO,  InternetAddress.parse(email[i]));
+            }
             mimeMessage.setSubject(subject);
             mimeMessage.setText(message);
+            Log.d("main", Arrays.toString(mimeMessage.getRecipients(Message.RecipientType.TO)));
             Transport.send(mimeMessage);
         }catch (MessagingException e){
             e.printStackTrace();

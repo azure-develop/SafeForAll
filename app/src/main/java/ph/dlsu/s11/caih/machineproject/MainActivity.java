@@ -181,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
                                 editor.putLong("phone2", Long.parseLong(d));
                                 editor.apply();
                                 pb_load.setVisibility(View.GONE);
+                                finish();
                                 startActivity(new Intent(MainActivity.this, MapsActivity.class));
                             } else {
                                 Log.d(TAG, "No such document " + user);

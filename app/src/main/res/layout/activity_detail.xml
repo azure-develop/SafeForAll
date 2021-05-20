@@ -138,6 +138,4 @@
         app:layout_constraintRight_toRightOf="@id/tv_emc"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

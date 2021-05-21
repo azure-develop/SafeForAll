@@ -23,7 +23,7 @@
         android:orientation="horizontal"
         android:weightSum="5"
         android:background="#F3F5E1"
-        map:layout_constraintBottom_toTopOf="@id/ll_text" >
+        map:layout_constraintBottom_toTopOf="@id/ll_texts" >
 
         <ImageButton
             android:id="@+id/ib_edit"
@@ -57,7 +57,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="0dp"
-            android:padding="5dp"
+            android:padding="0dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:src="@drawable/sms"
@@ -70,7 +70,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="0dp"
-            android:padding="5dp"
+            android:padding="0dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:src="@drawable/envelope"
@@ -92,7 +92,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/ll_text"
+        android:id="@+id/ll_texts"
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:orientation="horizontal"
@@ -123,6 +123,7 @@
             android:textSize="12sp" />
 
         <TextView
+            android:id="@+id/tv_sms"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="0dp"

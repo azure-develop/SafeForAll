@@ -8,11 +8,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -56,46 +58,56 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         ib_back2.setOnClickListener(v -> {
-            finish();
+            finishAffinity();
             startActivity(new Intent(DetailActivity.this, MapsActivity.class));
         });
 
+        //look for errors first, if no error proceed with working code
         btn_save.setOnClickListener(v -> {
-            Map<String, Object> details = new HashMap<>();
-            details.put("email1", et_email1.getText().toString());
-            details.put("email2", et_email2.getText().toString());
-            details.put("phone1", Long.parseLong(et_phone1.getText().toString()));
-            details.put("phone2", Long.parseLong(et_phone2.getText().toString()));
+            if(et_email1.getText().toString().trim().isEmpty() || et_email2.getText().toString().trim().isEmpty()
+                    || et_phone1.getText().toString().trim().isEmpty() || et_phone2.getText().toString().trim().isEmpty()){
+                Toast.makeText(getApplicationContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            }else if(!(Patterns.EMAIL_ADDRESS.matcher(et_email1.getText().toString().trim()).matches())) {
+                Toast.makeText(getApplicationContext(), "1st Email: Invalid email format", Toast.LENGTH_SHORT).show();
+            }else if(!(Patterns.EMAIL_ADDRESS.matcher(et_email2.getText().toString().trim()).matches())) {
+                Toast.makeText(getApplicationContext(), "2nd Email: Invalid email format", Toast.LENGTH_SHORT).show();
+            }else if(!(et_phone1.getText().toString().length() == 11)){
+                Toast.makeText(getApplicationContext(), "1st Phone number should be 11 digits", Toast.LENGTH_SHORT).show();
+            }else if(!(et_phone2.getText().toString().length() == 11)){
+                Toast.makeText(getApplicationContext(), "2nd Phone number should be 11 digits", Toast.LENGTH_SHORT).show();
+            }else{
+                Map<String, Object> details = new HashMap<>();
+                details.put("email1", et_email1.getText().toString());
+                details.put("email2", et_email2.getText().toString());
+                details.put("phone1", Long.parseLong(et_phone1.getText().toString()));
+                details.put("phone2", Long.parseLong(et_phone2.getText().toString()));
 
-            db.collection("users").document(user)
-                    .set(details)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                            sp = getSharedPreferences("safeforall", Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sp.edit();
-                            editor.putString("user", user);
-                            editor.putString("email1", et_email1.getText().toString());
-                            editor.putString("email2", et_email2.getText().toString());
-                            editor.putLong("phone1", Long.parseLong(et_phone1.getText().toString()));
-                            editor.putLong("phone2", Long.parseLong(et_phone2.getText().toString()));
-                            editor.apply();
-                        startActivity(new Intent(DetailActivity.this, MapsActivity.class));
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
+                db.collection("users").document(user)
+                        .set(details)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                                sp = getSharedPreferences("safeforall", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sp.edit();
+                                editor.putString("user", user);
+                                editor.putString("email1", et_email1.getText().toString());
+                                editor.putString("email2", et_email2.getText().toString());
+                                editor.putLong("phone1", Long.parseLong(et_phone1.getText().toString()));
+                                editor.putLong("phone2", Long.parseLong(et_phone2.getText().toString()));
+                                editor.apply();
+                                finish();
+                                startActivity(new Intent(DetailActivity.this, MapsActivity.class));
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
+            }
         });
-    }
-
-    @Override
-    public void onBackPressed(){
-        finishAffinity();
     }
 
     private void init(){

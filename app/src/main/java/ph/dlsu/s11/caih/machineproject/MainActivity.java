@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Do not leave any fields blank", Toast.LENGTH_SHORT).show();
             }else if(!(Patterns.EMAIL_ADDRESS.matcher(email).matches())){
                 Toast.makeText(getApplicationContext(), "Invalid email format", Toast.LENGTH_SHORT).show();
-            }else if (password.length() < 8){
+            }else if(password.length() < 8 && tv_first.getText().toString().equalsIgnoreCase("Register")){
                 Toast.makeText(getApplicationContext(), "Password too short, minimum of 8 characters!", Toast.LENGTH_SHORT).show();
             }else if(tv_first.getText().toString().equalsIgnoreCase("Register")) {
                 pb_load.setVisibility(View.VISIBLE);

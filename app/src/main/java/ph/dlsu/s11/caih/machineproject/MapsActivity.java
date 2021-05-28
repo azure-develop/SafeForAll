@@ -8,9 +8,11 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -20,6 +22,8 @@ import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
@@ -53,7 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
-//TODO fixing logic for SMS ... if extra time try to make location manager a Service
+
     private GoogleMap mMap;
     private SharedPreferences sp;
     private ImageButton ib_logout, ib_sound, ib_sms, ib_edit, ib_email;
@@ -65,11 +69,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private double latitude, longitude;
     private String user, email1, email2, phone1, phone2, locat;
     private LocationListener locationListener;
-    private LocationSettingsRequest.Builder builder;
-    private SmsManager sms = SmsManager.getDefault();
+    private final SmsManager sms = SmsManager.getDefault();
+    private HandlerThread handlerThread = null;
+    private Looper looper = null;
 
     private final String HEN_EMU_NUM = "+15555215554";
-    private TrackerUtility trackerUtility;
     private static final int REQUEST_CHECK_SETTING = 1010;
     private static final int PERMISSION_REQUEST_FINE_CODE = 1;
     private static final int PERMISSION_REQUEST_SMS_CODE = 2;
@@ -89,11 +93,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStart () {
         super.onStart();
 
-//        trackerUtility = new TrackerUtility(getApplicationContext(), MapsActivity.this);
-//        trackerUtility.track();
         LocationRequest locationRequest = LocationRequest.create().setInterval(5000)
                 .setFastestInterval(2000).setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
         builder.setAlwaysShow(true);
 
         Task<LocationSettingsResponse> result =
@@ -122,18 +124,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-//        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
-//                != PackageManager.PERMISSION_GRANTED){
-//            ib_sms.setVisibility(View.GONE);
-//            tv_sms.setVisibility(View.GONE);
-//            ll_buttons.setWeightSum(4);
-//            ll_texts.setWeightSum(4);
-//        }else{
-//            ib_sms.setVisibility(View.VISIBLE);
-//            tv_sms.setVisibility(View.VISIBLE);
-//            ll_buttons.setWeightSum(5);
-//            ll_texts.setWeightSum(5);
-//        }
+        ib_sms.setVisibility(View.VISIBLE);
+        tv_sms.setVisibility(View.VISIBLE);
+        ll_buttons.setWeightSum(5);
+        ll_texts.setWeightSum(5);
+
         tracker();
 
         sp = getSharedPreferences("safeforall", Context.MODE_PRIVATE);
@@ -195,10 +190,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String sub= "Safety concern to Emergency Contact";
             String msg = "I feel unsafe, my last location during this email was " + locat +
                     "\n\n\nSent from application SafeForAll by user " + user;
-            JavaMailAPI mail = new JavaMailAPI(this, email, sub, msg);
-            mail.execute();
-
-            Toast.makeText(getApplicationContext(), "Email sent successfully", Toast.LENGTH_LONG).show();
+            if(locat == null){
+                Toast.makeText(getApplicationContext(), "Email cannot be sent right now, try again", Toast.LENGTH_LONG).show();
+            }else {
+                JavaMailAPI mail = new JavaMailAPI(this, email, sub, msg);
+                mail.execute();
+                Toast.makeText(getApplicationContext(), "Email sent successfully", Toast.LENGTH_LONG).show();
+            }
         });
 
         ib_sms.setOnClickListener(v -> {
@@ -218,7 +216,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Toast.makeText(getApplicationContext(), "SMS cannot be sent right now, try again", Toast.LENGTH_LONG).show();
                 }else {
                     try {
-                        sms.sendTextMessage("+15555215554", null, msg, null, null);
+                        sms.sendTextMessage(HEN_EMU_NUM, null, msg, null, null);
                         sms.sendTextMessage(phone1, null, msg, null, null);
                         sms.sendTextMessage(phone2, null, msg, null, null);
                         Toast.makeText(getApplicationContext(), "SMS sent successfully", Toast.LENGTH_LONG).show();
@@ -241,7 +239,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-//        startService(new Intent(this, TrackerService.class));
 //        mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f));
     }
@@ -259,8 +256,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         PERMISSION_REQUEST_FINE_CODE);
             }
         }else{
+            handlerThread = new HandlerThread("MyHandlerThread");
+            handlerThread.start();
+            looper = handlerThread.getLooper();
             if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 0, locationListener = new LocationListener() {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0, locationListener = new LocationListener() {
                     @Override
                     public void onLocationChanged(@NonNull Location location) {
                         latitude = location.getLatitude();
@@ -268,21 +268,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         locat = String.format("Latitude: %f Longitude: %f", latitude,longitude);
                         Log.d(TAG, String.format("%f + %f", latitude, longitude));
                         LatLng latLng = new LatLng(latitude, longitude);
-                        mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12f));
+                        runOnUiThread(()->{
+                            mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12f));
+                        });
                     }
-                });
+                }, looper);
             } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, locationListener = new LocationListener() {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener = new LocationListener() {
                     @Override
                     public void onLocationChanged(@NonNull Location location) {
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
                         LatLng latLng = new LatLng(latitude, longitude);
-                        mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12f));
+                        runOnUiThread(()->{
+                            mMap.addMarker(new MarkerOptions().position(latLng).title("You are here"));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12f));
+                        });
                     }
-                });
+                }, looper);
             }
         }
     }
@@ -301,7 +305,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             showAlert(permission);
                         }else {
                             showDialog("Since you have denied permission twice or checked never ask me again. " +
-                                    "You now need to go to phone Settings to allow this app the permissions needed to work " +
+                                    "You now need to go to phone Settings > Privacy > Permission Manager > Location" +
+                                    " to allow this app the permissions needed to work " +
                                     "or simply reinstall the app and remember to accept permissions.\n\n\n After clicking 'Understood'" +
                                     " below, the app will close.", new DialogInterface.OnClickListener() {
                                 @Override
@@ -331,7 +336,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             showDialog("Since you did not give app the permission to send SMS." +
                                     " The Send SMS feature of the app will be disabled now.\n\n\n After clicking" +
                                     " 'Understood' below, the Send SMS button of the app will be disabled until" +
-                                    " you enable permissions in phone Settings", new DialogInterface.OnClickListener() {
+                                    " you enable permissions in phone Settings > Privacy > Permission Manager" +
+                                    " > SMS", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     switch (which) {
